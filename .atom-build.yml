@@ -1,0 +1,11 @@
+cmd: shake
+name: shake
+args:
+  - test
+targets:
+  force:
+    cmd: shake
+    args:
+      - -f
+      - force
+    name: force

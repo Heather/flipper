@@ -1,0 +1,25 @@
+name: flipper
+version: 0.0.1
+license: BSD3
+
+build-type: Simple
+cabal-version: >= 1.6
+
+Executable    flipper
+  Main-Is:    Main.hs
+  Other-Modules:
+    Boxed
+    Focused
+    Median
+  Hs-Source-Dirs: src
+  Ghc-Options:  -Wall -O3 -rtsopts
+  Build-Depends:
+      base >= 4.3 && < 666
+    , base-unicode-symbols
+    , bytestring
+    , vector
+    , directory
+    , filepath
+    , executable-path
+    , JuicyPixels >= 3.2.6
+    , ghc-prim
