@@ -10,9 +10,6 @@
   , TypeFamilies
   #-}
 
-{- Mostly represent haspervdj blogpost:
-   https://jaspervdj.be/posts/2014-11-27-comonads-image-processing.html -}
-
 import System.Environment
 
 import  Data.List (sort)
@@ -36,5 +33,5 @@ main = do
   [input, output] ← getArgs
   image ← readImage input
   let i = unfocus $ extend blur $ focus image
-  writeJpg output i
+  writePng output i
   putStrLn "Success"
