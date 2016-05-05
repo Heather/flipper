@@ -1,0 +1,16 @@
+flags: {}
+arch: i386, x86_64
+os: windows, linux
+system-ghc: true
+allow-newer: true
+packages:
+ - '.'
+extra-deps:
+- JuicyPixels-3.2.7
+- base-unicode-symbols-0.2.2.4
+- executable-path-0.0.3
+- vector-0.11.0.0
+- mtl-2.2.1
+- primitive-0.6.1.0
+- zlib-0.6.1.1
+resolver: ghc-7.10.3

@@ -33,5 +33,5 @@ main = do
   [input, output] ← getArgs
   image ← readImage input
   let i = unfocus $ extend blur $ focus image
-  writePng output i
+  writeJpg output i
   putStrLn "Success"

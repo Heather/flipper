@@ -27,8 +27,8 @@ main = shake $ do
                  ++ "flipper.exe"
                  ++ " " ++ a)
             >>= checkExitCode
-    removeIfExists "2.png"
-    flipper "1.png 2.png"
+    removeIfExists "2.jpg"
+    flipper "1.jpg 2.jpg"
 
  where buildPath :: String
        buildPath = "dist/build/flipper"
