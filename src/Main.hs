@@ -14,7 +14,6 @@ import System.Environment
 
 import  Data.List (sort)
 import  Data.Maybe (fromMaybe, maybeToList)
-import  Data.Word (Word8)
 
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Vector          as V
@@ -33,5 +32,6 @@ main = do
   [input, output] ← getArgs
   image ← readImage input
   let i = unfocus $ extend blur $ focus image
+  writePng (output ++ ".png") i
   writeJpg output i
   putStrLn "Success"

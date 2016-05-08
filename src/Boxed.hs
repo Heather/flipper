@@ -14,13 +14,13 @@ module Boxed
   ( BoxedImage(..)
   , readImage
   , writeJpg
-  --, writePng
-  , Pixel -- Word8
+  , writePng
+  , Pixel -- WordX
   ) where
 
 import  Data.List (sort)
 import  Data.Maybe (fromMaybe, maybeToList)
-import  Data.Word (Word8)
+import  Data.Word
 
 import qualified Data.ByteString.Lazy as L
 import qualified Data.Vector          as V
@@ -48,7 +48,8 @@ instance Functor BoxedImage where
    images (`BoxedImage Word8`), since this makes the image processing algorithms
    mentioned here a lot easier to understand. -}
 
-type Pixel = Word8  -- Grayscale
+type Pixel = Word8
+  --Word8  -- Grayscale
 
 --boxImage :: Juicy.Image Juicy.Pixel8 → BoxedImage Pixel
 boxImage :: Juicy.Image Juicy.Types.PixelYCbCr8 → BoxedImage Pixel
@@ -58,7 +59,13 @@ boxImage image = BoxedImage
   , biData   = VG.convert (Juicy.imageData image)
   }
 
---unboxImage :: BoxedImage Pixel → Juicy.Image Juicy.Pixel8
+unboxPng :: BoxedImage Pixel → Juicy.Image Juicy.Pixel8
+unboxPng boxedImage = Juicy.Image
+    { Juicy.imageWidth  = biWidth boxedImage
+    , Juicy.imageHeight = biHeight boxedImage
+    , Juicy.imageData   = VG.convert (biData boxedImage)
+    }
+
 unboxImage :: BoxedImage Pixel → Juicy.Image Juicy.Types.PixelYCbCr8
 unboxImage boxedImage = Juicy.Image
     { Juicy.imageWidth  = biWidth boxedImage
@@ -68,7 +75,6 @@ unboxImage boxedImage = Juicy.Image
 
 {- With the help of `boxImage` and `unboxImage`, we can now call out to the
    JuicyPixels library: -}
-
 readImage :: FilePath → IO (BoxedImage Pixel)
 readImage filePath = do
   errOrImage ← Juicy.readImageWithMetadata filePath
@@ -80,16 +86,15 @@ readImage filePath = do
     Right _ → error "readImage: unsupported format"
     Left err → error $ "readImage: could not load image: " ++ err
 
-{-
 writePng :: FilePath → BoxedImage Pixel → IO ()
-writePng filePath = Juicy.writePng filePath . unboxImage
--}
+writePng filePath = Juicy.writePng filePath . unboxPng
 
 writeJpg :: FilePath → BoxedImage Pixel → IO ()
 writeJpg filePath boxed = do
-  let metas = Met.insert Met.Author "flipper"
-            $ Met.mkDpiMetadata 93
-      img = unboxImage boxed
+  --let metas = Met.insert Met.Author "flipper"
+  --          $ Met.mkDpiMetadata 93
+  let img = unboxImage boxed
       i = Juicy.Types.convertImage img :: Juicy.Types.Image Juicy.Types.PixelYCbCr8
-      m = Juicy.Jpg.encodeJpegAtQualityWithMetadata 100 metas i
+      --m = Juicy.Jpg.encodeJpegAtQualityWithMetadata 100 metas i
+      m = Juicy.Jpg.encodeJpegAtQuality 90 i
   L.writeFile filePath m
