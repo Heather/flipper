@@ -30,8 +30,8 @@ import Median
 main :: IO ()
 main = do
   [input, output] ← getArgs
-  image ← readImage input
-  let i = unfocus $ extend blur $ focus image
+  image ← readImage input -- $ extend blur
+  let i = unfocus $ focus image
   writePng (output ++ ".png") i
   writeJpg output i
   putStrLn "Success"

@@ -51,9 +51,14 @@ instance Functor BoxedImage where
 type Pixel = Word8
   --Word8  -- Grayscale
 
---boxImage :: Juicy.Image Juicy.Pixel8 → BoxedImage Pixel
-boxImage :: Juicy.Image Juicy.Types.PixelYCbCr8 → BoxedImage Pixel
-boxImage image = BoxedImage
+boxPixel8 :: Juicy.Image Juicy.Types.Pixel8 → BoxedImage Pixel
+boxPixel8 image = BoxedImage
+  { biWidth  = Juicy.imageWidth image
+  , biHeight = Juicy.imageHeight image
+  , biData   = VG.convert (Juicy.imageData image)
+  }
+boxYCbCr8 :: Juicy.Image Juicy.Types.PixelYCbCr8 → BoxedImage Pixel
+boxYCbCr8 image = BoxedImage
   { biWidth  = Juicy.imageWidth image
   , biHeight = Juicy.imageHeight image
   , biData   = VG.convert (Juicy.imageData image)
@@ -65,9 +70,8 @@ unboxPng boxedImage = Juicy.Image
     , Juicy.imageHeight = biHeight boxedImage
     , Juicy.imageData   = VG.convert (biData boxedImage)
     }
-
-unboxImage :: BoxedImage Pixel → Juicy.Image Juicy.Types.PixelYCbCr8
-unboxImage boxedImage = Juicy.Image
+unboxYCbCr8 :: BoxedImage Pixel → Juicy.Image Juicy.Types.PixelYCbCr8
+unboxYCbCr8 boxedImage = Juicy.Image
     { Juicy.imageWidth  = biWidth boxedImage
     , Juicy.imageHeight = biHeight boxedImage
     , Juicy.imageData   = VG.convert (biData boxedImage)
@@ -79,10 +83,8 @@ readImage :: FilePath → IO (BoxedImage Pixel)
 readImage filePath = do
   errOrImage ← Juicy.readImageWithMetadata filePath
   case errOrImage of
-    --Right (Juicy.ImageY8 img, _) →
-      -- TODO: process Metadata
-      --return (boxImage img)
-    Right (Juicy.ImageYCbCr8 img, _) → return (boxImage img)
+    Right (Juicy.ImageY8 img, _) → return (boxPixel8 img)
+    Right (Juicy.ImageYCbCr8 img, _) → return (boxYCbCr8 img)
     Right _ → error "readImage: unsupported format"
     Left err → error $ "readImage: could not load image: " ++ err
 
@@ -93,7 +95,7 @@ writeJpg :: FilePath → BoxedImage Pixel → IO ()
 writeJpg filePath boxed = do
   --let metas = Met.insert Met.Author "flipper"
   --          $ Met.mkDpiMetadata 93
-  let img = unboxImage boxed
+  let img = unboxYCbCr8 boxed
       i = Juicy.Types.convertImage img :: Juicy.Types.Image Juicy.Types.PixelYCbCr8
       --m = Juicy.Jpg.encodeJpegAtQualityWithMetadata 100 metas i
       m = Juicy.Jpg.encodeJpegAtQuality 90 i
