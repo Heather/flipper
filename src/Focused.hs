@@ -3,12 +3,10 @@
   -fno-warn-unused-imports
   #-}
 
-{-# LANGUAGE
-    UnicodeSyntax
-  , ScopedTypeVariables
-  , FlexibleContexts
-  , TypeFamilies
-  #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 
 module Focused
   ( FocusedImage(..)
@@ -20,20 +18,20 @@ module Focused
   , module Boxed
   ) where
 
-import  Data.List (sort)
-import  Data.Maybe (fromMaybe, maybeToList)
-import  Data.Word (Word8)
+import           Data.List              (sort)
+import           Data.Maybe             (fromMaybe, maybeToList)
+import           Data.Word              (Word8)
 
-import qualified Data.ByteString.Lazy as L
-import qualified Data.Vector          as V
-import qualified Data.Vector.Generic  as VG
+import qualified Data.ByteString.Lazy   as L
+import qualified Data.Vector            as V
+import qualified Data.Vector.Generic    as VG
 
 import qualified Codec.Picture          as Juicy
-import qualified Codec.Picture.Types    as Juicy.Types
 import qualified Codec.Picture.Jpg      as Juicy.Jpg
 import qualified Codec.Picture.Metadata as Met
+import qualified Codec.Picture.Types    as Juicy.Types
 
-import Boxed
+import           Boxed
 
 {- additional type that focuses on a specific
    location in the image. We typically want to use a smart constructor for this, so
@@ -45,12 +43,12 @@ data FocusedImage a = FocusedImage
   }
 
 -- Conversion to and from a `BoxedImage` is easy:
-focus :: BoxedImage a → FocusedImage a
+focus ∷ BoxedImage a → FocusedImage a
 focus bi
   | biWidth bi > 0 && biHeight bi > 0 = FocusedImage bi 0 0
   | otherwise                         = error "Cannot focus on empty images"
 
-unfocus :: FocusedImage a → BoxedImage a
+unfocus ∷ FocusedImage a → BoxedImage a
 unfocus (FocusedImage bi _ _) = bi
 
 -- And the functor instance is straightforward, too:
@@ -58,9 +56,9 @@ instance Functor FocusedImage where
   fmap f (FocusedImage bi x y) = FocusedImage (fmap f bi) x y
 
 -- Now, we can implement the fabled Comonad class:
-class Functor w => Comonad w where
-  extract :: w a → a
-  extend  :: (w a → b) → w a → w b
+class Functor w ⇒ Comonad w where
+  extract ∷ w a → a
+  extend  ∷ (w a → b) → w a → w b
 
 {- We want to convert all pixels in the image, and the conversion function is supplied as
    f :: FocusedImage a -> b. In order to apply this to all pixels in the image,
@@ -80,7 +78,7 @@ instance Comonad FocusedImage where
    want to be able to look around in a pixel's neighbourhood easily. In order to do
    this, we create this function which shifts the focus by a given pair of
    coordinates: -}
-neighbour :: Int → Int → FocusedImage a → Maybe (FocusedImage a)
+neighbour ∷ Int → Int → FocusedImage a → Maybe (FocusedImage a)
 neighbour dx dy (FocusedImage bi x y)
     | outOfBounds = Nothing
     | otherwise   = Just (FocusedImage bi x' y')

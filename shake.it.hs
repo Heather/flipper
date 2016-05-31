@@ -1,8 +1,8 @@
 {-# LANGUAGE UnicodeSyntax #-}
 
-import Shake.It.Off
+import           Shake.It.Off
 
-main :: IO ()
+main ∷ IO ()
 main = shake $ do
   "clean" ∫ cabal ["clean"]
 
@@ -30,5 +30,5 @@ main = shake $ do
     removeIfExists "2.jpg"
     flipper "1.jpg 2.jpg"
 
- where buildPath :: String
+ where buildPath ∷ String
        buildPath = "dist/build/flipper"

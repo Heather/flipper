@@ -3,13 +3,11 @@
   -fno-warn-unused-imports
   #-}
 
-{-# LANGUAGE
-    UnicodeSyntax
-  , ScopedTypeVariables
-  , FlexibleContexts
-  , TypeFamilies
-  , BangPatterns
-  #-}
+{-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 
 {- taken from example just for test -}
 
@@ -19,31 +17,31 @@ module Median
   , blur
   ) where
 
-import  Data.List (sort)
-import  Data.Maybe (fromMaybe, maybeToList)
-import  Data.Word (Word8)
+import           Data.List              (sort)
+import           Data.Maybe             (fromMaybe, maybeToList)
+import           Data.Word              (Word8)
 
-import qualified Data.ByteString.Lazy as L
-import qualified Data.Vector          as V
-import qualified Data.Vector.Generic  as VG
+import qualified Data.ByteString.Lazy   as L
+import qualified Data.Vector            as V
+import qualified Data.Vector.Generic    as VG
 
 import qualified Codec.Picture          as Juicy
-import qualified Codec.Picture.Types    as Juicy.Types
 import qualified Codec.Picture.Jpg      as Juicy.Jpg
 import qualified Codec.Picture.Metadata as Met
+import qualified Codec.Picture.Types    as Juicy.Types
 
-import Control.Applicative ((<$>))
+import           Control.Applicative    ((<$>))
 
-import Focused
+import           Focused
 
-reduceNoise1 :: FocusedImage Pixel → Pixel
+reduceNoise1 ∷ FocusedImage Pixel → Pixel
 reduceNoise1 pixel = median
   [ extract p
   | x ← [-2, -1 .. 2], y ← [-2, -1 .. 2]
   , p ← maybeToList (neighbour x y pixel)
   ]
 
-median :: Integral a => [a] → a
+median ∷ Integral a ⇒ [a] → a
 median xs
   | odd len   = sort xs !! (len `div` 2)
   | otherwise = case drop (len `div` 2 - 1) (sort xs) of
@@ -51,7 +49,7 @@ median xs
           _           → error "median: empty list"
  where !len = length xs
 
-blur :: FocusedImage Pixel → Pixel
+blur ∷ FocusedImage Pixel → Pixel
 blur pixel = fromMaybe (extract pixel) $ do
   let self = fromIntegral (extract pixel) :: Int
   topLeft     ← extractNeighbour (-1) (-1)
@@ -67,5 +65,5 @@ blur pixel = fromMaybe (extract pixel) $ do
     top * 2 + right * 2 + bottom * 2 + left * 2 +
     topLeft + topRight + bottomRight + bottomLeft
  where
-   extractNeighbour :: Int → Int → Maybe Int
+   extractNeighbour ∷ Int → Int → Maybe Int
    extractNeighbour x y = fromIntegral . extract <$> neighbour x y pixel

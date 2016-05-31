@@ -3,12 +3,10 @@
   -fno-warn-unused-imports
   #-}
 
-{-# LANGUAGE
-    UnicodeSyntax
-  , ScopedTypeVariables
-  , FlexibleContexts
-  , TypeFamilies
-  #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 
 module Boxed
   ( BoxedImage(..)
@@ -18,18 +16,18 @@ module Boxed
   , Pixel -- WordX
   ) where
 
-import  Data.List (sort)
-import  Data.Maybe (fromMaybe, maybeToList)
-import  Data.Word
+import           Data.List              (sort)
+import           Data.Maybe             (fromMaybe, maybeToList)
+import           Data.Word
 
-import qualified Data.ByteString.Lazy as L
-import qualified Data.Vector          as V
-import qualified Data.Vector.Generic  as VG
+import qualified Data.ByteString.Lazy   as L
+import qualified Data.Vector            as V
+import qualified Data.Vector.Generic    as VG
 
 import qualified Codec.Picture          as Juicy
-import qualified Codec.Picture.Types    as Juicy.Types
 import qualified Codec.Picture.Jpg      as Juicy.Jpg
 import qualified Codec.Picture.Metadata as Met
+import qualified Codec.Picture.Types    as Juicy.Types
 
 {- We want to be able to store any kind of pixel value, not just `Storable` values,
    so we declare our own `BoxedImage`. We will simply store pixels in row-major
@@ -51,26 +49,26 @@ instance Functor BoxedImage where
 type Pixel = Word8
   --Word8  -- Grayscale
 
-boxPixel8 :: Juicy.Image Juicy.Types.Pixel8 → BoxedImage Pixel
+boxPixel8 ∷ Juicy.Image Juicy.Types.Pixel8 → BoxedImage Pixel
 boxPixel8 image = BoxedImage
   { biWidth  = Juicy.imageWidth image
   , biHeight = Juicy.imageHeight image
   , biData   = VG.convert (Juicy.imageData image)
   }
-boxYCbCr8 :: Juicy.Image Juicy.Types.PixelYCbCr8 → BoxedImage Pixel
+boxYCbCr8 ∷ Juicy.Image Juicy.Types.PixelYCbCr8 → BoxedImage Pixel
 boxYCbCr8 image = BoxedImage
   { biWidth  = Juicy.imageWidth image
   , biHeight = Juicy.imageHeight image
   , biData   = VG.convert (Juicy.imageData image)
   }
 
-unboxPng :: BoxedImage Pixel → Juicy.Image Juicy.Pixel8
+unboxPng ∷ BoxedImage Pixel → Juicy.Image Juicy.Pixel8
 unboxPng boxedImage = Juicy.Image
     { Juicy.imageWidth  = biWidth boxedImage
     , Juicy.imageHeight = biHeight boxedImage
     , Juicy.imageData   = VG.convert (biData boxedImage)
     }
-unboxYCbCr8 :: BoxedImage Pixel → Juicy.Image Juicy.Types.PixelYCbCr8
+unboxYCbCr8 ∷ BoxedImage Pixel → Juicy.Image Juicy.Types.PixelYCbCr8
 unboxYCbCr8 boxedImage = Juicy.Image
     { Juicy.imageWidth  = biWidth boxedImage
     , Juicy.imageHeight = biHeight boxedImage
@@ -79,7 +77,7 @@ unboxYCbCr8 boxedImage = Juicy.Image
 
 {- With the help of `boxImage` and `unboxImage`, we can now call out to the
    JuicyPixels library: -}
-readImage :: FilePath → IO (BoxedImage Pixel)
+readImage ∷ FilePath → IO (BoxedImage Pixel)
 readImage filePath = do
   errOrImage ← Juicy.readImageWithMetadata filePath
   case errOrImage of
@@ -88,10 +86,10 @@ readImage filePath = do
     Right _ → error "readImage: unsupported format"
     Left err → error $ "readImage: could not load image: " ++ err
 
-writePng :: FilePath → BoxedImage Pixel → IO ()
+writePng ∷ FilePath → BoxedImage Pixel → IO ()
 writePng filePath = Juicy.writePng filePath . unboxPng
 
-writeJpg :: FilePath → BoxedImage Pixel → IO ()
+writeJpg ∷ FilePath → BoxedImage Pixel → IO ()
 writeJpg filePath boxed = do
   --let metas = Met.insert Met.Author "flipper"
   --          $ Met.mkDpiMetadata 93
